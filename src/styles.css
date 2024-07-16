@@ -1,0 +1,60 @@
+/* Barre latérale */
+.sidebar .sidebar-content {
+    background-color: #f8f9fa;
+    padding: 10px;
+}
+
+.sidebar .sidebar-content img {
+    margin-bottom: 20px;
+}
+
+.sidebar .sidebar-content .stRadio > label {
+    color: #007bff;
+    font-size: 20px;
+}
+
+.sidebar .sidebar-content .stRadio > div {
+    color: #6c757d;
+    font-size: 18px;
+}
+
+/* En-têtes */
+h1, h2, h3, h4, h5, h6 {
+    color: #007bff;
+}
+
+/* Boîte d'alerte */
+.stAlert {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Boutons */
+.stButton > button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.stButton > button:hover {
+    background-color: #0056b3;
+}
+
+/* Autres éléments */
+.stDataFrame, .stTable {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.stDataFrame thead {
+    background-color: #007bff;
+    color: white;
+}
+
+.stDataFrame tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}

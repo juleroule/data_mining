@@ -2,15 +2,24 @@ import pandas as pd
 import streamlit as st
 
 def load_data():
-    uploaded_file = st.file_uploader("Choisissez un fichier CSV", type="csv")
+    st.subheader("Chargement des données")
+    
+    # Ajouter un bouton pour supprimer le dataset actuel
+    if 'data' in st.session_state and st.session_state.data is not None:
+        if st.button("Supprimer le dataset actuel"):
+            st.session_state.data = None
+            st.success("Dataset supprimé avec succès")
+    
+    uploaded_file = st.file_uploader("Choisissez un fichier CSV", type="csv", accept_multiple_files=False)
     if uploaded_file is not None:
-        header = st.checkbox("Le fichier contient-il une en-tête ?", value=True)
-        separator = st.selectbox("Sélectionnez le type de séparation", [",", ";", "\t", "|"], index=0)
         try:
+            header = st.checkbox("Le fichier contient-il une en-tête ?", value=True)
+            separator = st.selectbox("Sélectionnez le type de séparation", [",", ";", "\t", "|"], index=0)
             if header:
                 data = pd.read_csv(uploaded_file, sep=separator)
             else:
                 data = pd.read_csv(uploaded_file, sep=separator, header=None)
+            st.session_state.data = data
             st.success("Données chargées avec succès !")
             return data
         except Exception as e:
