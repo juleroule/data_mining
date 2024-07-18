@@ -31,10 +31,19 @@ def plot_histogram(data):
             plt.title(f'Histogramme de {second_x_column}')
         
         st.pyplot(plt, use_container_width=True)
-        
+
 def get_string_columns(data):
     return [col for col in data.columns if pd.api.types.is_string_dtype(data[col])]
 
+# Function to get numerical columns
+def get_numerical_columns(data):
+    return [col for col in data.columns if data[col].dtype in ['int64', 'float64']]
+
+# Function to get string columns
+def get_string_columns(data):
+    return [col for col in data.columns if pd.api.types.is_string_dtype(data[col])]
+
+# Function to plot histograms for string columns with an optional numerical y-axis
 def plot_histogram_for_strings(data):
     st.subheader("Histogrammes pour les valeurs de type string")
     string_columns = get_string_columns(data)
@@ -43,31 +52,47 @@ def plot_histogram_for_strings(data):
         st.error("Aucune colonne de type string disponible dans le dataset.")
         return
     
-    # Sélection de la première colonne pour l'axe des X
+    # Select the first column for the X axis
     x_column = st.selectbox("Choisissez une colonne pour l'axe des X", string_columns, key='hist_x')
     
-    # Option pour afficher un deuxième histogramme
+    # Option to add a second histogram
     add_second_hist = st.checkbox("Ajouter un deuxième histogramme", key='second_hist')
     if add_second_hist:
         second_x_column = st.selectbox("Choisissez une colonne pour le deuxième histogramme", string_columns, key='second_hist_x')
+    
+    # Option to add a Y axis column of any type
+    add_y_axis = st.checkbox("Ajouter une colonne pour l'axe des Y", key='add_y_axis')
+    y_column = None
+    if add_y_axis:
+        y_column = st.selectbox("Choisissez une colonne pour l'axe des Y", data.columns, key='y_column')
 
     if x_column:
-        plt.figure(figsize=(20, 6))  # Taille de la figure définie à 20x6 pouces
-        plt.subplot(1, 2, 1)  # Premier histogramme
-        value_counts = data[x_column].value_counts()
-        plt.bar(value_counts.index, value_counts.values, edgecolor='black')
+        plt.figure(figsize=(20, 6))  # Set figure size to 20x6 inches
+        plt.subplot(1, 2, 1)  # First histogram
+        if y_column:
+            y_values = data[y_column].groupby(data[x_column]).sum()
+            plt.bar(y_values.index, y_values.values, edgecolor='black')
+            plt.ylabel(f'Sum of {y_column}')
+        else:
+            value_counts = data[x_column].value_counts()
+            plt.bar(value_counts.index, value_counts.values, edgecolor='black')
+            plt.ylabel('Frequency')
         plt.title(f'Histogramme de {x_column}')
         plt.xlabel('Value')
-        plt.ylabel('Frequency')
         plt.xticks(rotation=45)
         
         if add_second_hist and second_x_column:
-            plt.subplot(1, 2, 2)  # Deuxième histogramme
-            value_counts = data[second_x_column].value_counts()
-            plt.bar(value_counts.index, value_counts.values, edgecolor='black')
+            plt.subplot(1, 2, 2)  # Second histogram
+            if y_column:
+                y_values = data[y_column].groupby(data[second_x_column]).sum()
+                plt.bar(y_values.index, y_values.values, edgecolor='black')
+                plt.ylabel(f'Sum of {y_column}')
+            else:
+                value_counts = data[second_x_column].value_counts()
+                plt.bar(value_counts.index, value_counts.values, edgecolor='black')
+                plt.ylabel('Frequency')
             plt.title(f'Histogramme de {second_x_column}')
             plt.xlabel('Value')
-            plt.ylabel('Frequency')
             plt.xticks(rotation=45)
         
         st.pyplot(plt, use_container_width=True)
@@ -129,3 +154,14 @@ def plot_heatmap(data):
         st.pyplot(plt)
     else:
         st.warning("Veuillez choisir au moins une colonne pour afficher le heatmap.")
+
+def plot_map(data):
+    st.subheader("Carte des données de latitude et de longitude")
+    
+    # Vérifiez que les colonnes 'latitude' et 'longitude' existent dans le DataFrame
+    if 'latitude' not in data.columns or 'longitude' not in data.columns:
+        st.error("Le dataset doit contenir les colonnes 'latitude' et 'longitude'.")
+        return
+    
+    # Afficher la carte
+    st.map(data[['latitude', 'longitude']])
