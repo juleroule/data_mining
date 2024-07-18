@@ -90,8 +90,6 @@ def handle_missing_values(data):
     
     return data
 
-
-    
 def normalize_data(data):
     st.subheader("Normalisation des données")
     normalization_method = st.selectbox(
