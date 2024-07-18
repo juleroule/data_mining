@@ -1,5 +1,5 @@
 import streamlit as st
-from data_cleaning import handle_missing_values, normalize_data
+from data_visualization import plot_boxplot, plot_bar_chart, plot_scatterplot, plot_correlation_matrix, plot_heatmap
 import os
 
 def local_css(file_name):
@@ -23,23 +23,22 @@ def main():
     else:
         st.sidebar.error("Logo non trouvé.")
 
-    st.header("Pré-traitement et nettoyage des données")
+    st.header("Visualisation des données nettoyées")
     if 'data' not in st.session_state:
         st.session_state.data = None
 
     if st.session_state.data is not None:
-        st.write("Données originales :")
-        st.dataframe(st.session_state.data.head())
-
-        data = handle_missing_values(st.session_state.data)
-        if data is not None:
-            data = normalize_data(data)
-        if data is not None:
-            st.session_state.data = data
-            st.write("Données après pré-traitement :")
-            st.dataframe(st.session_state.data.head())
-        else:
-            st.warning("Le pré-traitement des données a échoué. Veuillez vérifier votre dataset et réessayer.")
+        vis_type = st.selectbox("Choisissez un type de visualisation", ["Box Plot", "Diagramme en barres", "Nuage de points", "Matrice de corrélation", "Heatmap"])
+        if vis_type == "Box Plot":
+            plot_boxplot(st.session_state.data)
+        elif vis_type == "Diagramme en barres":
+            plot_bar_chart(st.session_state.data)
+        elif vis_type == "Nuage de points":
+            plot_scatterplot(st.session_state.data)
+        elif vis_type == "Matrice de corrélation":
+            plot_correlation_matrix(st.session_state.data)
+        elif vis_type == "Heatmap":
+            plot_heatmap(st.session_state.data)      
     else:
         st.warning("Veuillez d'abord charger les données.")
 

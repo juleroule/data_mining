@@ -3,8 +3,6 @@ from sklearn.impute import SimpleImputer, KNNImputer
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
 import streamlit as st
 
-
-
 def handle_missing_values(data):
     st.subheader("Gestion des valeurs manquantes")
 
@@ -92,8 +90,6 @@ def handle_missing_values(data):
     
     return data
 
-
-    
 def normalize_data(data):
     st.subheader("Normalisation des données")
     normalization_method = st.selectbox(
