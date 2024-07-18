@@ -19,6 +19,7 @@ def load_data():
                 data = pd.read_csv(uploaded_file, sep=separator)
             else:
                 data = pd.read_csv(uploaded_file, sep=separator, header=None)
+            data.columns = [col.lower() for col in data.columns]
             st.session_state.data = data
             st.success("Données chargées avec succès !")
             return data

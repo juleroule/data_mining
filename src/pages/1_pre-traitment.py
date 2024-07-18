@@ -1,5 +1,5 @@
 import streamlit as st
-from data_cleaning import handle_missing_values, normalize_data, encode_categorical_columns
+from data_cleaning import handle_missing_values, normalize_data
 import os
 
 def local_css(file_name):
@@ -28,13 +28,16 @@ def main():
         st.session_state.data = None
 
     if st.session_state.data is not None:
+        st.write("Données originales :")
+        st.dataframe(st.session_state.data.head())
+
         data = handle_missing_values(st.session_state.data)
-        if data is not None:
-            data = encode_categorical_columns(data)
         if data is not None:
             data = normalize_data(data)
         if data is not None:
             st.session_state.data = data
+            st.write("Données après pré-traitement :")
+            st.dataframe(st.session_state.data.head())
         else:
             st.warning("Le pré-traitement des données a échoué. Veuillez vérifier votre dataset et réessayer.")
     else:
