@@ -1,78 +1,63 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-import streamlit as st
 import pandas as pd
+from sklearn.impute import SimpleImputer, KNNImputer
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
+import streamlit as st
 
-def plot_histogram(data):
-    st.subheader("Histogrammes")
-    x_column = st.selectbox("Choisissez une colonne pour l'axe des X", data.columns, key='hist_x')
-    y_column = st.selectbox("Choisissez une colonne pour l'axe des Y", [None] + data.columns.tolist(), key='hist_y')
-    sum_option = st.checkbox("Faire la somme des valeurs pour les mêmes catégories", key='sum_option')
+def handle_missing_values(data, methods):
+    original_shape = data.shape
 
-    if x_column:
-        plt.figure(figsize=(10, 6))  # Taille de la figure définie à 10x6 pouces
-        if sum_option and y_column:
-            # Faire la somme des valeurs de y_column pour chaque catégorie de x_column
-            summed_data = data.groupby(x_column)[y_column].sum().reset_index()
-            sns.barplot(x=x_column, y=y_column, data=summed_data)
-            plt.title(f'Somme de {y_column} pour chaque {x_column}')
-        elif y_column and y_column != x_column:
-            sns.histplot(data=data, x=x_column, hue=y_column, multiple="stack", kde=True)
-            plt.title(f'Histogramme de {x_column} avec {y_column} comme variable de couleur')
-        else:
-            sns.histplot(data[x_column].dropna(), kde=True)
-            plt.title(f'Histogramme de {x_column}')
-        st.pyplot(plt)
+    for method in methods:
+        if method == "Supprimer les lignes":
+            data = data.dropna()
+        elif method == "Supprimer les colonnes":
+            data = data.dropna(axis=1)
+        elif method in ["Remplacer par la moyenne", "Remplacer par la médiane", "Remplacer par le mode"]:
+            strategy = "mean" if method == "Remplacer par la moyenne" else "median" if method == "Remplacer par la médiane" else "most_frequent"
+            imputer = SimpleImputer(strategy=strategy)
+            data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
+        elif method == "Imputation KNN":
+            imputer = KNNImputer()
+            data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
+        elif method == "Remplacer par NaN":
+            data = data.apply(lambda x: x.where(pd.notnull(x), None))
 
-def plot_boxplot(data):
-    st.subheader("Box plots")
-    column = st.selectbox("Choisissez une colonne pour afficher le box plot", data.columns, key='boxplot')
-    if column:
-        plt.figure(figsize=(10, 6))  # Taille de la figure définie à 10x6 pouces
-        sns.boxplot(x=data[column].dropna())
-        plt.title(f'Box plot de {column}')
-        st.pyplot(plt)
+    # Supprimer les colonnes avec plus de 90% de valeurs manquantes
+    threshold = 0.9
+    missing_ratio = data.isnull().mean()
+    columns_to_drop = missing_ratio[missing_ratio > threshold].index
+    if len(columns_to_drop) > 0:
+        data = data.drop(columns=columns_to_drop)
+        st.write(f"Colonnes supprimées avec plus de {threshold*100}% de valeurs manquantes : {', '.join(columns_to_drop)}")
 
-def plot_bar_chart(data):
-    st.subheader("Diagrammes en barres")
-    x_column = st.selectbox("Choisissez la colonne pour l'axe des X", data.columns, key='barchart_x')
-    y_column = st.selectbox("Choisissez la colonne pour l'axe des Y", data.columns, key='barchart_y')
+    if data.shape[0] == 0 or data.shape[1] == 0:
+        st.error("Toutes les lignes ou colonnes ont été supprimées. Veuillez sélectionner une autre méthode de gestion des valeurs manquantes.")
+        return None
+
+    return data
+
+def normalize_data(data, normalization_method):
+    if normalization_method == "Min-Max":
+        scaler = MinMaxScaler()
+        data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+    elif normalization_method == "Z-score":
+        scaler = StandardScaler()
+        data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
     
-    if x_column and y_column:
-        plt.figure(figsize=(10, 6))  # Taille de la figure définie à 10x6 pouces
-        sns.barplot(x=data[x_column].dropna(), y=data[y_column].dropna())
-        plt.title(f'Diagramme en barres entre {x_column} et {y_column}')
-        st.pyplot(plt)
-    else:
-        st.warning("Veuillez choisir les colonnes pour afficher le diagramme en barres.")
+    if data.empty:
+        st.error("Les données sont vides après normalisation. Veuillez vérifier votre dataset et réessayer.")
+        return None
 
-def plot_scatterplot(data):
-    st.subheader("Nuages de points")
-    x_column = st.selectbox("Choisissez la colonne pour l'axe des X", data.columns, key='scatter_x')
-    y_column = st.selectbox("Choisissez la colonne pour l'axe des Y", data.columns, key='scatter_y')
-    if x_column and y_column and data[x_column].dtype in ['int64', 'float64'] and data[y_column].dtype in ['int64', 'float64']:
-        plt.figure(figsize=(10, 6))
-        sns.scatterplot(x=data[x_column].dropna(), y=data[y_column].dropna())
-        plt.title(f'Nuage de points entre {x_column} et {y_column}')
-        st.pyplot(plt)
-    else:
-        st.warning("Veuillez choisir des colonnes numériques pour afficher le nuage de points.")
+    return data
 
-def plot_correlation_matrix(data):
-    st.subheader("Matrice de corrélation")
-    corr = data.corr()
-    plt.figure(figsize=(12, 8))
-    sns.heatmap(corr, annot=True, cmap='coolwarm', center=0)
-    plt.title('Matrice de corrélation')
-    st.pyplot(plt)
+def encode_categorical_columns(data):
+    label_encoders = {}
+    for column in data.select_dtypes(include=['object']).columns:
+        le = LabelEncoder()
+        data[column] = le.fit_transform(data[column])
+        label_encoders[column] = le
+    
+    if data.empty:
+        st.error("Toutes les colonnes catégorielles ont été supprimées. Veuillez vérifier votre dataset et réessayer.")
+        return None
 
-def plot_heatmap(data):
-    st.subheader("Heatmap")
-    columns = st.multiselect("Choisissez les colonnes pour afficher le heatmap", data.columns)
-    if columns:
-        plt.figure(figsize=(10, 6))
-        sns.heatmap(data[columns].dropna().corr(), annot=True, cmap='coolwarm')
-        plt.title(f'Heatmap des colonnes sélectionnées')
-        st.pyplot(plt)
-    else:
-        st.warning("Veuillez choisir au moins une colonne pour afficher le heatmap.")
+    return data
