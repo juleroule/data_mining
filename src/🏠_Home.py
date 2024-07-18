@@ -24,6 +24,7 @@ def main():
         st.sidebar.error("Logo non trouvé.")
 
     st.header("Projet Data Mining")
+    st.subheader("Jule Roule / Mehdi Remili / Alexandre Legoupil")
     if 'data' not in st.session_state:
         st.session_state.data = None
     

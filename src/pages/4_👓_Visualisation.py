@@ -1,5 +1,5 @@
 import streamlit as st
-from data_visualization import plot_histogram, plot_boxplot, plot_bar_chart, plot_scatterplot, plot_correlation_matrix, plot_heatmap
+from data_visualization import plot_boxplot, plot_bar_chart, plot_scatterplot, plot_correlation_matrix, plot_heatmap
 import os
 
 def local_css(file_name):
@@ -28,10 +28,8 @@ def main():
         st.session_state.data = None
 
     if st.session_state.data is not None:
-        vis_type = st.selectbox("Choisissez un type de visualisation", ["Histogramme", "Box Plot", "Diagramme en barres", "Nuage de points", "Matrice de corrélation", "Heatmap"])
-        if vis_type == "Histogramme":
-            plot_histogram(st.session_state.data)
-        elif vis_type == "Box Plot":
+        vis_type = st.selectbox("Choisissez un type de visualisation", ["Box Plot", "Diagramme en barres", "Nuage de points", "Matrice de corrélation", "Heatmap"])
+        if vis_type == "Box Plot":
             plot_boxplot(st.session_state.data)
         elif vis_type == "Diagramme en barres":
             plot_bar_chart(st.session_state.data)
@@ -40,7 +38,7 @@ def main():
         elif vis_type == "Matrice de corrélation":
             plot_correlation_matrix(st.session_state.data)
         elif vis_type == "Heatmap":
-            plot_heatmap(st.session_state.data)
+            plot_heatmap(st.session_state.data)      
     else:
         st.warning("Veuillez d'abord charger les données.")
 
