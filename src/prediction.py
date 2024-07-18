@@ -23,7 +23,6 @@ def perform_prediction(data):
             st.error("La colonne cible doit être numérique pour la régression.")
             return
 
-        # Vérifier que les colonnes de X sont numériques
         X = X.select_dtypes(include=['int64', 'float64'])
         
         model = LinearRegression()
@@ -44,7 +43,6 @@ def perform_prediction(data):
             st.error("La colonne cible doit être catégorielle pour la classification.")
             return
 
-        # Vérifier que les colonnes de X sont numériques
         X = X.select_dtypes(include=['int64', 'float64'])
         
         model = RandomForestClassifier()

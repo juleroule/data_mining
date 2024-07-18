@@ -6,10 +6,8 @@ import streamlit as st
 def handle_missing_values(data):
     st.subheader("Gestion des valeurs manquantes")
 
-    # Remplacer les chaînes vides par NaN
     data = data.replace("", pd.NA)
 
-    # Formulaire pour suppression de lignes et colonnes
     st.markdown("### Suppression de lignes et colonnes")
     drop_rows = st.checkbox("Supprimer les lignes entièrement vides")
     drop_columns = st.checkbox("Supprimer les colonnes avec plus de 90% de valeurs manquantes")
@@ -49,7 +47,6 @@ def handle_missing_values(data):
         st.write("Données après suppression de lignes et colonnes :")
         st.dataframe(data.head())
 
-    # Formulaire pour remplacement des valeurs manquantes
     st.markdown("### Remplacement des valeurs manquantes")
     method = st.radio(
         "Sélectionnez une méthode de remplacement des valeurs manquantes",
@@ -71,7 +68,6 @@ def handle_missing_values(data):
             elif method == "Remplacer par NaN":
                 data = data.apply(lambda x: x.where(pd.notnull(x), None))
 
-            # Supprimer les colonnes avec plus de 90% de valeurs manquantes après imputation
             threshold = 0.9
             missing_ratio = data.isnull().mean()
             columns_to_drop = missing_ratio[missing_ratio > threshold].index

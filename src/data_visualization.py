@@ -3,7 +3,6 @@ import seaborn as sns
 import streamlit as st
 import pandas as pd
 
-# Fonction utilitaire pour obtenir les colonnes numériques
 def get_numerical_columns(data):
     return [col for col in data.columns if data[col].dtype in ['int64', 'float64']]
 
@@ -15,7 +14,7 @@ def plot_boxplot(data):
     numerical_columns = get_numerical_columns(data)
     column = st.selectbox("Choisissez une colonne pour afficher le box plot", numerical_columns, key='boxplot')
     if column:
-        plt.figure(figsize=(10, 6))  # Taille de la figure définie à 10x6 pouces
+        plt.figure(figsize=(10, 6))
         sns.boxplot(x=data[column].dropna())
         plt.title(f'Box plot de {column}')
         st.pyplot(plt)
@@ -27,7 +26,7 @@ def plot_bar_chart(data):
     y_column = st.selectbox("Choisissez la colonne pour l'axe des Y", numerical_columns, key='barchart_y')
     
     if x_column and y_column:
-        plt.figure(figsize=(10, 6))  # Taille de la figure définie à 10x6 pouces
+        plt.figure(figsize=(10, 6))  
         sns.barplot(x=data[x_column].dropna(), y=data[y_column].dropna())
         plt.title(f'Diagramme en barres entre {x_column} et {y_column}')
         st.pyplot(plt)
@@ -70,41 +69,32 @@ def plot_heatmap(data):
 
 def plot_map(data):
     st.subheader("Carte des données de latitude et de longitude")
-    
-    # Vérifiez que les colonnes 'latitude' et 'longitude' existent dans le DataFrame
+
     if 'latitude' not in data.columns or 'longitude' not in data.columns:
         st.error("Le dataset doit contenir les colonnes 'latitude' et 'longitude'.")
         return
-    
-    # Afficher la carte
+
     st.map(data[['latitude', 'longitude']])
 
 def plot_filtered_map(data):
     st.subheader("Carte des données filtrées par une autre colonne")
-    
-    # Vérifiez que les colonnes 'latitude' et 'longitude' existent dans le DataFrame
+
     if 'latitude' not in data.columns or 'longitude' not in data.columns:
         st.error("Le dataset doit contenir les colonnes 'latitude' et 'longitude'.")
         return
 
-    # Convert latitude and longitude columns to numeric, forcing errors to NaN
     data['latitude'] = pd.to_numeric(data['latitude'], errors='coerce')
     data['longitude'] = pd.to_numeric(data['longitude'], errors='coerce')
 
-    # Supprimer les lignes avec des valeurs nulles dans les colonnes latitude et longitude
     data = data.dropna(subset=['latitude', 'longitude'])
 
-    # Sélectionner la colonne pour le filtrage
     filter_column = st.selectbox("Choisissez une colonne pour le filtrage", data.columns, key='filter_col')
 
-    # Sélectionner la valeur pour le filtrage
     unique_values = data[filter_column].unique()
     filter_value = st.selectbox(f"Choisissez une valeur pour le filtrage dans la colonne {filter_column}", unique_values, key='filter_val')
-    
-    # Filtrer les données
+
     filtered_data = data[data[filter_column] == filter_value]
-    
-    # Afficher la carte
+
     if not filtered_data.empty:
         st.map(filtered_data[['latitude', 'longitude']])
     else:

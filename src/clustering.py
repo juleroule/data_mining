@@ -10,8 +10,7 @@ def perform_clustering(data):
     if data.empty:
         st.error("Les données sont vides. Veuillez charger un dataset valide.")
         return
-    
-    # Sélectionner les colonnes numériques
+
     numerical_columns = data.select_dtypes(include=['int64', 'float64']).columns
     if len(numerical_columns) == 0:
         st.error("Le dataset ne contient aucune colonne numérique pour le clustering.")

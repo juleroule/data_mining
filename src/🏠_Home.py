@@ -12,10 +12,8 @@ def local_css(file_name):
         st.error(f"Le fichier {file_name} est introuvable.")
 
 def main():
-    # Chargement du CSS local
     local_css("styles.css")
 
-    # Ajout du logo dans la barre latérale
     current_dir = os.path.dirname(__file__)
     logo_path = os.path.join(current_dir, "image.png")
     if os.path.exists(logo_path):

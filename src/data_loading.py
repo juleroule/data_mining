@@ -3,8 +3,7 @@ import streamlit as st
 
 def load_data():
     st.subheader("Chargement des données")
-    
-    # Ajouter un bouton pour supprimer le dataset actuel
+
     if 'data' in st.session_state and st.session_state.data is not None:
         if st.button("Supprimer le dataset actuel"):
             st.session_state.data = None

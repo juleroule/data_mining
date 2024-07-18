@@ -13,10 +13,8 @@ def local_css(file_name):
         st.error(f"Le fichier {file_name} est introuvable.")
 
 def main():
-
     local_css("../styles.css")
 
-    # Ajout du logo dans la barre latérale
     current_dir = os.path.dirname(__file__)
     logo_path = os.path.join(current_dir, "../image.png")
     if os.path.exists(logo_path):
@@ -26,13 +24,12 @@ def main():
 
     st.title("Visualisation des données géographiques")
 
-    # Vérifiez si les données sont chargées dans le session state
     if 'data' in st.session_state and st.session_state.data is not None:
         data = st.session_state.data
 
         plot_map(data)
         plot_filtered_map(data)
-        
+
     else:
         st.warning("Veuillez charger les données avant de visualiser la carte.")
 
