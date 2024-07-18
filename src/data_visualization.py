@@ -165,3 +165,34 @@ def plot_map(data):
     
     # Afficher la carte
     st.map(data[['latitude', 'longitude']])
+
+def plot_filtered_map(data):
+    st.subheader("Carte des données filtrées par une autre colonne")
+    
+    # Vérifiez que les colonnes 'latitude' et 'longitude' existent dans le DataFrame
+    if 'latitude' not in data.columns or 'longitude' not in data.columns:
+        st.error("Le dataset doit contenir les colonnes 'latitude' et 'longitude'.")
+        return
+
+    # Convert latitude and longitude columns to numeric, forcing errors to NaN
+    data['latitude'] = pd.to_numeric(data['latitude'], errors='coerce')
+    data['longitude'] = pd.to_numeric(data['longitude'], errors='coerce')
+
+    # Supprimer les lignes avec des valeurs nulles dans les colonnes latitude et longitude
+    data = data.dropna(subset=['latitude', 'longitude'])
+
+    # Sélectionner la colonne pour le filtrage
+    filter_column = st.selectbox("Choisissez une colonne pour le filtrage", data.columns)
+
+    # Sélectionner la valeur pour le filtrage
+    unique_values = data[filter_column].unique()
+    filter_value = st.selectbox(f"Choisissez une valeur pour le filtrage dans la colonne {filter_column}", unique_values)
+    
+    # Filtrer les données
+    filtered_data = data[data[filter_column] == filter_value]
+    
+    # Afficher la carte
+    if not filtered_data.empty:
+        st.map(filtered_data[['latitude', 'longitude']])
+    else:
+        st.warning("Aucune donnée disponible pour cette sélection.")

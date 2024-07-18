@@ -30,8 +30,6 @@ def main():
     if st.session_state.data is not None:
         data = handle_missing_values(st.session_state.data)
         if data is not None:
-            data = encode_categorical_columns(data)
-        if data is not None:
             data = normalize_data(data)
         if data is not None:
             st.session_state.data = data
