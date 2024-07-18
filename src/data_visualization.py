@@ -196,3 +196,44 @@ def plot_filtered_map(data):
         st.map(filtered_data[['latitude', 'longitude']])
     else:
         st.warning("Aucune donnée disponible pour cette sélection.")
+
+
+def plot_histogrammes_double_x(data):
+    """
+    Crée un histogramme avec deux colonnes sélectionnées par l'utilisateur comme variables sur l'axe des X
+    et la somme des valeurs de ces colonnes sur l'axe des Y.
+    """
+    st.subheader("Histogramme avec deux colonnes comme variables sur l'axe des X")
+
+    # Filtrer les colonnes ayant moins de 10 valeurs uniques
+    valid_columns = [col for col in data.columns if data[col].nunique() < 10]
+    
+    # Vérifiez qu'il y a suffisamment de colonnes valides
+    if len(valid_columns) < 2:
+        st.error("Le DataFrame doit contenir au moins deux colonnes avec moins de 10 valeurs uniques.")
+        return
+
+    # Sélectionnez deux colonnes à partir d'un menu déroulant
+    col1 = st.selectbox("Choisissez la première colonne pour l'axe des X", valid_columns, index=0)
+    col2 = st.selectbox("Choisissez la deuxième colonne pour l'axe des X", valid_columns, index=1)
+    
+    # Vérifiez que les colonnes sélectionnées ne sont pas identiques
+    if col1 == col2:
+        st.error("Veuillez choisir deux colonnes différentes.")
+        return
+
+    # Créez une nouvelle colonne pour les paires de valeurs
+    data['pair'] = data[col1].astype(str) + "_" + data[col2].astype(str)
+
+    # Calculez la fréquence de chaque paire
+    pair_counts = data['pair'].value_counts().reset_index()
+    pair_counts.columns = ['pair', 'Count']
+
+    # Tracez l'histogramme
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x='pair', y='Count', data=pair_counts)
+    plt.xlabel('Paires de colonnes')
+    plt.ylabel('Fréquence')
+    plt.title(f'Fréquence des paires de {col1} et {col2}')
+    plt.xticks(rotation=45)
+    st.pyplot(plt)
