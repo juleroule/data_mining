@@ -1,5 +1,6 @@
 import streamlit as st
-from data_loading import load_data, display_data_preview, display_data_summary
+from clustering import perform_clustering
+from prediction import perform_prediction
 import os
 
 def local_css(file_name):
@@ -13,28 +14,28 @@ def local_css(file_name):
 
 def main():
     # Chargement du CSS local
-    local_css("styles.css")
+    local_css("../styles.css")
 
     # Ajout du logo dans la barre latérale
     current_dir = os.path.dirname(__file__)
-    logo_path = os.path.join(current_dir, "image.png")
+    logo_path = os.path.join(current_dir, "../image.png")
     if os.path.exists(logo_path):
         st.sidebar.image(logo_path, use_column_width=True)
     else:
         st.sidebar.error("Logo non trouvé.")
 
-    st.header("Projet Data Mining")
+    st.header("Clustering ou Prédiction")
     if 'data' not in st.session_state:
         st.session_state.data = None
-    
-    data = load_data()
-    if data is not None:
-        st.session_state.data = data
-        display_data_preview(data)
-        display_data_summary(data)
-    elif st.session_state.data is not None:
-        display_data_preview(st.session_state.data)
-        display_data_summary(st.session_state.data)
+
+    if st.session_state.data is not None:
+        analysis_type = st.selectbox("Choisissez le type d'analyse", ["Clustering", "Prédiction"])
+        if analysis_type == "Clustering":
+            perform_clustering(st.session_state.data)
+        elif analysis_type == "Prédiction":
+            perform_prediction(st.session_state.data)
+    else:
+        st.warning("Veuillez d'abord charger les données.")
 
 if __name__ == "__main__":
     main()
